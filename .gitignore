@@ -3,6 +3,7 @@
 *.json
 data/
 .vscode/
+models/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

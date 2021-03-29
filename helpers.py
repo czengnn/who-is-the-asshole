@@ -1,18 +1,13 @@
 import pandas as pd
 import numpy as np
-
 from textblob import TextBlob
 import re
 import string
 import contractions
 import spacy
 import pickle 
-
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import PCA, IncrementalPCA
-
-
-
 
 def clean_lil_bit(text):
     text = text.lower()
@@ -66,10 +61,12 @@ class Proctologist:
         cv_cols = self.cv.get_feature_names()
         self.dtm = pd.DataFrame(cv_dtm.toarray(), columns=cv_cols)
         
+        # create pca DF
         dtm_pca = self.pca.transform(self.dtm)
         pca_cols = ['PC_' + str(i) for i in range(1, self.pca.get_params()['n_components']+1)]
         self.dtm_pca_df = pd.DataFrame(dtm_pca, columns=pca_cols)
-    
+        
+        # combine PCA and sentiment analysis into X DF
         self.X = pd.concat([self.df[['polarity','subjectivity']], self.dtm_pca_df], axis=1)
         
     def judgement(self, arr):

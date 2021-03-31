@@ -37,11 +37,20 @@ def remove_punc(s):
 
 
 
+
+
+
+
+
+base_lr = pickle.load(open('models/lr.sav', 'rb'))
+base_cv = pickle.load(open('models/cv_fit_train.sav', 'rb'))
+base_pca = pickle.load(open('models/pca_combo.sav', 'rb'))
+
 class Proctologist:
-    def __init__(self):
-        self.cv = pickle.load(open('models/cv_fit_train.sav', 'rb'))
-        self.pca = pickle.load(open('models/pca_combo.sav', 'rb'))
-        self.model = pickle.load(open('models/lr.sav', 'rb'))
+    def __init__(self, cv=base_cv, pca=base_pca, model=base_lr):
+        self.cv = cv
+        self.pca = pca
+        self.model = model
         
     def text_convert(self, arr):
         text_df = pd.DataFrame(arr, columns = ['text'])
@@ -54,10 +63,8 @@ class Proctologist:
         # fincal clean up of text
         text_df['text_clean'] = text_df['text_lil_clean'].apply(lambda x: remove_punc(x))
         
-        self.df = text_df[['text_clean','polarity','subjectivity']]
-        
         # create dtm DF
-        cv_dtm = self.cv.transform(self.df['text_clean'])
+        cv_dtm = self.cv.transform(text_df['text_clean'])
         cv_cols = self.cv.get_feature_names()
         self.dtm = pd.DataFrame(cv_dtm.toarray(), columns=cv_cols)
         
@@ -67,9 +74,16 @@ class Proctologist:
         self.dtm_pca_df = pd.DataFrame(dtm_pca, columns=pca_cols)
         
         # combine PCA and sentiment analysis into X DF
-        self.X = pd.concat([self.df[['polarity','subjectivity']], self.dtm_pca_df], axis=1)
+        self.X = pd.concat([text_df[['polarity','subjectivity']], self.dtm_pca_df], axis=1)
         
-    def judgement(self, arr):
+    def diagnosis(self, arr):
         self.text_convert(arr)
-        return self.model.predict(self.X)
+        
+        verdict = self.model.predict(self.X)
+        probs = np.around(self.model.predict_proba(self.X), decimals=2)
+        verdict_df = pd.DataFrame(np.append(probs, verdict.reshape(-1, 1), axis=1), 
+                                  columns=['prob not asshole', ' prob asshole', 'verdict'])
+        verdict_df['label'] = verdict_df['verdict'].apply(lambda x: 'Asshole' if x==1 else 'Not Asshole')
+        return verdict_df
+   
 

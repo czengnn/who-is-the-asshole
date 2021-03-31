@@ -83,7 +83,8 @@ class Proctologist:
         probs = np.around(self.model.predict_proba(self.X), decimals=2)
         verdict_df = pd.DataFrame(np.append(probs, verdict.reshape(-1, 1), axis=1), 
                                   columns=['prob not asshole', ' prob asshole', 'verdict'])
-        verdict_df['label'] = verdict_df['verdict'].apply(lambda x: 'Asshole' if x==1 else 'Not Asshole')
+        verdict_df['label'] = verdict_df['asshole'].apply(lambda x: 'Asshole' if x==1 else 'Not Asshole')
+        verdict_df['text'] = arr
         return verdict_df
    
 

@@ -22,7 +22,6 @@ def clean_lil_bit(text):
     return text
 
 sp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
-
 def remove_punc(s):
     s = re.sub('[%s]' % re.escape(string.punctuation), '', s)
     s = re.sub('[‘’“”…]', '', s)
@@ -35,22 +34,14 @@ def remove_punc(s):
     s = ' '.join([word.lemma_ for word in post if word.text not in sub_question])
     return s
 
-
-
-
-
-
-
-
-base_lr = pickle.load(open('models/lr.sav', 'rb'))
-base_cv = pickle.load(open('models/cv_fit_train.sav', 'rb'))
-base_pca = pickle.load(open('models/pca_combo.sav', 'rb'))
+base_model = pickle.load(open('models/rfc_sen.sav', 'rb'))
+base_cv = pickle.load(open('models/cv_fit_train_min10.sav', 'rb'))
 
 class Proctologist:
-    def __init__(self, cv=base_cv, pca=base_pca, model=base_lr):
+    def __init__(self, cv=base_model, model=base_lr, sentiment=True):
         self.cv = cv
-        self.pca = pca
         self.model = model
+        self.sentiment = sentiment
         
     def text_convert(self, arr):
         text_df = pd.DataFrame(arr, columns = ['text'])
@@ -59,7 +50,6 @@ class Proctologist:
         # add sentiment analysis score to df
         text_df['polarity'] = text_df['text_lil_clean'].apply(lambda x : TextBlob(x).sentiment.polarity)
         text_df['subjectivity'] = text_df['text_lil_clean'].apply(lambda x : TextBlob(x).sentiment.subjectivity)
-        
         # fincal clean up of text
         text_df['text_clean'] = text_df['text_lil_clean'].apply(lambda x: remove_punc(x))
         
@@ -68,23 +58,14 @@ class Proctologist:
         cv_cols = self.cv.get_feature_names()
         self.dtm = pd.DataFrame(cv_dtm.toarray(), columns=cv_cols)
         
-        # create pca DF
-        dtm_pca = self.pca.transform(self.dtm)
-        pca_cols = ['PC_' + str(i) for i in range(1, self.pca.get_params()['n_components']+1)]
-        self.dtm_pca_df = pd.DataFrame(dtm_pca, columns=pca_cols)
-        
-        # combine PCA and sentiment analysis into X DF
-        self.X = pd.concat([text_df[['polarity','subjectivity']], self.dtm_pca_df], axis=1)
+        if self.sentiment:
+        # combine DTM and sentiment analysis into X
+            self.X = pd.concat([text_df[['polarity','subjectivity']], self.dtm], axis=1)
+        else:
+            self.X = self.dtm
         
     def diagnosis(self, arr):
-        self.text_convert(arr)
-        
+        self.text_convert(arr)        
         verdict = self.model.predict(self.X)
-        probs = np.around(self.model.predict_proba(self.X), decimals=2)
-        verdict_df = pd.DataFrame(np.append(probs, verdict.reshape(-1, 1), axis=1), 
-                                  columns=['prob not asshole', ' prob asshole', 'verdict'])
-        verdict_df['label'] = verdict_df['asshole'].apply(lambda x: 'Asshole' if x==1 else 'Not Asshole')
-        verdict_df['text'] = arr
+        verdict_df = pd.DataFrame(zip(arr,verdict), columns=['text', 'asshole'])
         return verdict_df
-   
-

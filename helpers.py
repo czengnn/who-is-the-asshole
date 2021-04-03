@@ -36,12 +36,13 @@ def remove_punc(s):
 
 base_model = pickle.load(open('models/rfc_sen.sav', 'rb'))
 base_cv = pickle.load(open('models/cv_fit_train_min10.sav', 'rb'))
-
+pca_2 = pickle.load(open('models/pca_2.sav', 'rb'))
 class Proctologist:
-    def __init__(self, cv=base_model, model=base_lr, sentiment=True):
+    def __init__(self, cv=base_cv, model=base_model,pca=pca_2, sentiment=True, pca_tf=False):
         self.cv = cv
         self.model = model
         self.sentiment = sentiment
+        self.pca = pca
         
     def text_convert(self, arr):
         text_df = pd.DataFrame(arr, columns = ['text'])

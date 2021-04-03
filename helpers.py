@@ -34,11 +34,11 @@ def remove_punc(s):
     s = ' '.join([word.lemma_ for word in post if word.text not in sub_question])
     return s
 
-base_model = pickle.load(open('models/rfc_sen.sav', 'rb'))
-base_cv = pickle.load(open('models/cv_fit_train_min10.sav', 'rb'))
-pca_2 = pickle.load(open('models/pca_2.sav', 'rb'))
+# base_model = pickle.load(open('models/rfc_sen.sav', 'rb'))
+# base_cv = pickle.load(open('models/cv_fit_train_min10.sav', 'rb'))
+# pca_2 = pickle.load(open('models/pca_2.sav', 'rb'))
 class Proctologist:
-    def __init__(self, cv=base_cv, model=base_model,pca=pca_2, sentiment=True, pca_tf=False):
+    def __init__(self, cv, model, sentiment=True):
         self.cv = cv
         self.model = model
         self.sentiment = sentiment

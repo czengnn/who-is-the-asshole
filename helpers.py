@@ -42,7 +42,6 @@ class Proctologist:
         self.cv = cv
         self.model = model
         self.sentiment = sentiment
-        self.pca = pca
         
     def text_convert(self, arr):
         text_df = pd.DataFrame(arr, columns = ['text'])

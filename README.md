@@ -13,7 +13,7 @@ The features used in this project are
 - Verdict (YTA, NTA, ESH, NAH)
 - Is Asshole
 
-Below reference chart came from the automod in the subreddit. Each comment on a post is required to give one of below 5 judgements. The final verdict is presented as a flair on the post, which is based on the judgements given in the comments by community members. 
+Below reference chart came from the automod in the subreddit. Each comment on a post is required to give one of below 5 judgements. The final verdict is presented as a flair on the post, which is based on the judgements given in the comments by community members.  
 ![verdict chart](/image/verdict.png)  
 
 Since it's not important for the purpose of this project if the other party in the story is the asshole, YTA and ESH are converted into 1, NTA and NAH are converted into 0, representing if the OP (original poster) is the asshole or is not the asshole.

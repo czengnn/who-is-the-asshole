@@ -1,6 +1,6 @@
 # who-is-the-asshole
-
-An NLP moral philosopher that will read a text description of a conflict, and make a moral judgement on whether or not the writer is the asshole in the situation.
+## Summary
+An NLP moral philosopher(The Proctologist) that will read a text description of a conflict, and make a moral judgement on whether or not the writer is the asshole in the situation.
 
 ## Data Source
 The data came from the subreddit [r/amitheasshole](reddit.com/r/AmItheAsshole/) and was scraped by this [repo](github.com/iterative/aita_dataset)
@@ -67,12 +67,13 @@ The best performing models are below, with corss validation scores:
 ### 1. SGD  
     F1 Score = 0.684
     Accuracy Score = 0.730
-    ![SGD](/image/sgd_sen_conf_matrix.png)
+ ![SGD](/image/sgd_sen_conf_matrix.png)
 ### 2. Random Forest
     F1 Score = 0.673  
     Accuracy Score = 0.765
-    ![SGD](/image/rfc_sen_conf_matrix.png)
+![SGD](/image/rfc_sen_conf_matrix.png)
 
+## About the models
 I tested the models with the 500 posts from the original dataset with the highests post scores, the SGD model has an accuracy of 0.732, the Random Forest model had a 0.996 accuracy.  
 
 Even though my models performed better than random guessing in the dataset I had, they have some critical flaws:  
@@ -80,10 +81,23 @@ Even though my models performed better than random guessing in the dataset I had
 I wrote this fake conflict:
 > I pushed my mom off a cliff after she said she will not buy me a playstation 5. She is now half dead and will never walk again, my whole family is mad at me, but I don't feel bad about it, aita?
 
-Both models predicted the OP is the asshole
+Both models predicted the OP is the asshole, which is obviously correct. 
 
-But if I swap the roles in the story, my models still think that the OP is the asshole
+I swapped the roles in the story, making OP the innocent party:
 > my mom pushed me off a cliff after I said I will not buy her a playstation 5. I'm now half dead and will never walk again, my whole family is mad at me for not buying her the playstation 5, aita?
+
+Yet my models still think that the OP is the asshole, which is incorrect. 
+
+At this point I have tried many different ways to train different models using the bag-of-words approach. A few things I have tried:
+- Lowering the treashold of word count to include more unigrams and bigrams in the vectorizer
+- TFIDF
+- PCA
+- Including/excluding sentiment analysis as predictor 
+- Using pipeline to find best parameters
+
+
+I found that there was not much I can do to improve on the f1 and accuracy of my models, and I came to the conclusion that a bag-of-words approach is inadequate for a task that pertains to nuanced moral judgement. After all, even humans can have a hard time finding consensus on the right and wrong of described actions/intentions/decisions.  
+I think the next step would be to use a vectorizing method such as word2vec to preserve the meaning of words and phrases. 
 
 
 # Moral Of The Story
